@@ -1,7 +1,7 @@
 use std::collections::{HashMap, VecDeque};
 use std::process::{Command as StdCommand, Stdio};
 
-use clap::{ArgAction, Parser, Subcommand};
+use clap::{ArgAction, Args, Parser, Subcommand};
 
 use serde::{Serialize, Deserialize};
 use serde_yaml;
@@ -13,15 +13,19 @@ pub struct App {
     cmd: Command,
 }
 
+#[derive(Args, Clone, Debug)]
+struct RunArgs {
+    #[arg(long = "arg-ref", short = 'a', default_value_t = ("").to_string(),
+            help="A reference to arguments which is path to file + arguments ID separated with colon. Example: /my/connfig.cfg:my_args")]
+    arg_ref: String,
+    #[arg(action = ArgAction::Append, help="Additional arguments to append on top of reference")]
+    args: Vec<String>,
+}
+
+
 #[derive(Debug, Subcommand, Clone)]
 enum Command {
-    Run {
-        #[arg(long = "arg-ref", short = 'a', default_value_t = ("").to_string(),
-              help="A reference to arguments which is path to file + arguments ID separated with colon. Example: /my/connfig.cfg:my_args")]
-        arg_ref: String,
-        #[arg(action = ArgAction::Append, help="Additional arguments to append on top of reference")]
-        args: Vec<String>,
-    },
+    Run(RunArgs)
 }
 
 
@@ -47,12 +51,13 @@ struct TaskArgs {
 fn main() {
     let app = App::parse();
     match &app.cmd {
-        Command::Run { arg_ref, args } => run(arg_ref, args),
+        Command::Run(r) => run(r),
     }
 }
 
-fn run(arg_ref: &String, additional_args: &Vec<String>) {
-    let arg_ref_parts: Vec<String> = arg_ref.split(":")
+fn run(cmd_args: &RunArgs) {
+// fn run(arg_ref: &String, additional_args: &Vec<String>) {
+    let arg_ref_parts: Vec<String> = cmd_args.arg_ref.split(":")
         .map(|x| x.to_string())
         .collect();
     // TODO: check for len of vec
@@ -72,7 +77,7 @@ fn run(arg_ref: &String, additional_args: &Vec<String>) {
     let mut run_args: VecDeque<String> = args.args.as_ref().unwrap().iter()
         .map(|c| c.clone())
         .collect();
-    run_args.extend(additional_args.clone());
+    run_args.extend(cmd_args.args.clone());
 
     let cmd_app = run_args.pop_front().unwrap();
     let output = StdCommand::new(cmd_app)
