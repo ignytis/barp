@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
+use std::process::{Command as StdCommand, Stdio};
 
 use clap::{ArgAction, Parser, Subcommand};
 
@@ -24,16 +25,22 @@ enum Command {
 }
 
 
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+enum ConfigParam {
+    String(String),
+    HashMap(HashMap<String, ConfigParam>)
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct TaskArgsRunner {
     name: String,
-    config: Option<HashMap<String, String>>,
+    config: Option<HashMap<String, ConfigParam>>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct TaskArgs {
     runner: TaskArgsRunner,
-    env: Option<HashMap<String, String>>,
     args: Option<Vec<String>>,
 }
 
@@ -62,9 +69,19 @@ fn run(arg_ref: &String, additional_args: &Vec<String>) {
         None => panic!("Args not found: {}", args_id), // TODO: error handling
     };
 
-    let mut args: Vec<String> = args.args.as_ref().unwrap().clone();
-    args.extend(additional_args.clone());
-    for arg in args {
-        println!("AAA: {}", arg);
-    }
+    let mut run_args: VecDeque<String> = args.args.as_ref().unwrap().iter()
+        .map(|c| c.clone())
+        .collect();
+    run_args.extend(additional_args.clone());
+
+    let cmd_app = run_args.pop_front().unwrap();
+    let output = StdCommand::new(cmd_app)
+                        .args(run_args)
+                        .stdout(Stdio::piped())
+                        .stderr(Stdio::piped())
+                        .output()
+                        .expect("Failure");
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    println!("{}", stdout);
 }
