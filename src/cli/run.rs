@@ -1,9 +1,9 @@
 use std::collections::{HashMap, VecDeque};
-use std::process::{Command as StdCommand, Stdio};
 
 use clap::{ArgAction, Args};
 use serde_yaml;
 
+use crate::runners;
 use crate::types::task_args::TaskConfig;
 
 #[derive(Args, Clone, Debug)]
@@ -18,22 +18,18 @@ pub struct RunArgs {
 /// The 'run' command
 pub fn run(cmd_args: &RunArgs) -> Result<(), String> {
     let task_cfg = get_task_config_from_reference(&cmd_args.task_cfg_ref)?;
+
+    let runner_fn = match runners::get_runner(&task_cfg.runner.name) {
+        Some(r) => r,
+        None => return Err(format!("Cannot find a runder by name: {}", &task_cfg.runner.name)),
+    };
+
     let mut run_args: VecDeque<String> = task_cfg.args.as_ref().unwrap().iter()
         .map(|c| c.clone())
         .collect();
     run_args.extend(cmd_args.args.clone());
 
-    let cmd_app = run_args.pop_front().unwrap();
-    let output = StdCommand::new(cmd_app)
-                        .args(run_args)
-                        .stdout(Stdio::piped())
-                        .stderr(Stdio::piped())
-                        .output()
-                        // TODO: error handling
-                        .expect("Failure");
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    println!("{}", stdout);
+    runner_fn(task_cfg.runner.config, &run_args);
     Ok(())
 }
 

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use serde::{Serialize, Deserialize};
 
 /// The main structure of task configuration.
@@ -13,7 +13,7 @@ pub struct TaskConfig {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct TaskConfigRunner {
     pub name: String,
-    pub config: Option<HashMap<String, ConfigParam>>,
+    pub config: TaskConfigRunnerCfg,
 }
 
 /// A unit of YAML configuration. Key is always a string,
@@ -24,3 +24,9 @@ pub enum ConfigParam {
     String(String),
     HashMap(HashMap<String, ConfigParam>)
 }
+
+/// Runner-specific configuration in 'runner.config' section
+pub type TaskConfigRunnerCfg = Option<HashMap<String, ConfigParam>>;
+
+/// A list of arguments for task
+pub type TaskArgs = VecDeque<String>;
