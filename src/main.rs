@@ -1,7 +1,7 @@
 mod cli;
 mod types;
 
-fn main() {
+fn main() -> Result<(), String> {
     cli::router()
 }
 

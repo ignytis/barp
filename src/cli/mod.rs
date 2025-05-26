@@ -18,7 +18,7 @@ enum Command {
 }
 
 /// This function is called from main() and does the rest of work
-pub fn router() {
+pub fn router() -> Result<(), String> {
     let app = App::parse();
     match &app.cmd {
         Command::Run(r) => run::run(r),

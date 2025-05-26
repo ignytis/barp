@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 
-/// The main structure of arg reference.
+/// The main structure of task configuration.
 /// Contains common arguments and runner configuration.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct TaskArgs {
-    pub runner: TaskArgsRunner,
+pub struct TaskConfig {
+    pub runner: TaskConfigRunner,
     pub args: Option<Vec<String>>,
 }
 
 /// Runner arguments: runner name and configuration
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct TaskArgsRunner {
+pub struct TaskConfigRunner {
     pub name: String,
     pub config: Option<HashMap<String, ConfigParam>>,
 }
