@@ -1,11 +1,11 @@
 use std::collections::{HashMap, VecDeque};
-use std::process::{Command, Stdio};
 
 use clap::{ArgAction, Args};
 use serde_yaml;
 
 use crate::arg_builders;
-use crate::types::process_params::ProcessParams;
+use crate::serialization::map_objects;
+use crate::system::run_process;
 use crate::types::task_args::ConfigParam;
 
 const ATTR_KIND: &str = "kind";
@@ -35,22 +35,17 @@ pub fn run(run_args: &RunArgs) -> Result<(), String> {
     };
 
     // Downcast the task config from hashmap into parameter structure
-    let task_cfg = match serde_yaml::to_string(&task_cfg) {
-        Ok(c) => c,
-        Err(e) => return Err(format!("Failed to serialize the task config: {}", e)),
+    let task_cfg: ConfigParam = match map_objects(&task_cfg) {
+        Ok(t) => t,
+        Err(e) => return Err(format!("Failed to map task config: {}", e)),
     };
-    let task_cfg: ConfigParam = match serde_yaml::from_str(&task_cfg) {
-        Ok(c) => c,
-        Err(e) => return Err(format!("Failed to deserialize the task config: {}", e)),
-    };
-
     let cmd_args: VecDeque<String> = run_args.args.clone().into();
 
     let process_params = match arg_builder_fn(&task_cfg, &cmd_args) {
         Ok(p) => p,
         Err(e) => return Err(format!("Failed to deserialize the task config: {}", e)),
     };
-    do_run(&process_params);
+    run_process(&process_params);
     Ok(())
 }
 
@@ -78,15 +73,3 @@ fn get_task_config_from_reference(task_cfg_ref: &String) -> Result<HashMap<Strin
     }
 }
 
-fn do_run(params: &ProcessParams) {
-    let output = Command::new(params.command.clone())
-        .args(params.args.clone())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .output()
-        // TODO: error handling
-        .expect("Failure");
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    println!("{}", stdout);
-}
