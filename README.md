@@ -8,6 +8,17 @@ This application simplifies execution of processes by providing a flexible way t
 
 Early WIP
 
+## Example of execution
+
+```bash
+/barp run -c $PWD/docs/examples/arg_refs/command.cfg:ls -- /home
+
+total 16K
+drwxr-xr-x.  4 root       root       4,0K  9. mai   03:00 .
+dr-xr-xr-x. 20 root       root       4,0K 20. mai   00:40 ..
+drwx------. 41 user       user       4,0K 25. mai   01:44 user  
+```
+
 ## FAQ
 
 __Why Rust? The same might be done in Python__
