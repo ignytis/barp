@@ -46,8 +46,7 @@ pub fn run(run_args: &RunArgs) -> Result<(), String> {
 
     let cmd_args: VecDeque<String> = run_args.args.clone().into();
     let process_params = build_process_params(&arg_builder_name, &task_cfg, &cmd_args)?;
-    run_process(&process_params);
-    Ok(())
+    run_process(&process_params)
 }
 
 fn load_profile(profile_path: &String) -> Result<ConfigParam, String> {

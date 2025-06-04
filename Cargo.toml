@@ -6,7 +6,4 @@ edition = "2024"
 [dependencies]
 clap = { version = "4.5.38", features = ["derive"] }
 mlua = { version = "0.10.5", features = ["lua53", "vendored"] }
-# TODO: remove serde if it's not needed anymore
-serde = { version = "1.0.219", features = ["derive"]}
-serde_yaml = "0.9.34"
 yaml-rust = "0.4.5"

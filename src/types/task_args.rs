@@ -1,12 +1,10 @@
 use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 
 use crate::yaml::read_yaml_file_as_hashmap;
 
 /// A unit of YAML configuration. Key is always a string,
 /// value might be string or collection
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[serde(untagged)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ConfigParam {
     Boolean(bool),
     HashMap(HashMap<String, ConfigParam>),
