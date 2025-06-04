@@ -11,7 +11,7 @@ Early WIP
 ## Example of execution
 
 ```bash
-/barp run -c $PWD/docs/examples/arg_refs/command.cfg:ls -- /home
+/barp run -t $PWD/docs/examples/task_templates/command.cfg:ls -- /home
 
 total 16K
 drwxr-xr-x.  4 root       root       4,0K  9. mai   03:00 .
