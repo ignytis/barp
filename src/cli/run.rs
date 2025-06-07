@@ -25,7 +25,7 @@ pub struct RunArgs {
 }
 
 /// The 'run' command
-pub fn run(run_args: &RunArgs) -> Result<(), String> {
+pub async fn run(run_args: &RunArgs) -> Result<(), String> {
     let mut profile = load_profile(&run_args.profile_path)?;
     // Final task arguments = task defaults from profile (if any) + task arguments in the task template
     let task_cfg_defaults = match config_param_consume_hashmap_key(&mut profile, ATTR_TASK_DEFAULTS)? {
@@ -46,7 +46,7 @@ pub fn run(run_args: &RunArgs) -> Result<(), String> {
 
     let cmd_args: VecDeque<String> = run_args.args.clone().into();
     let process_params = build_process_params(&arg_builder_name, &task_cfg, &cmd_args)?;
-    run_process(&process_params)
+    run_process(&process_params).await
 }
 
 fn load_profile(profile_path: &String) -> Result<ConfigParam, String> {

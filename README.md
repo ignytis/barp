@@ -11,12 +11,14 @@ Early WIP
 ## Example of execution
 
 ```bash
-/barp run -t $PWD/docs/examples/task_templates/command.cfg:ls -- /home
-
-total 16K
-drwxr-xr-x.  4 root       root       4,0K  9. mai   03:00 .
-dr-xr-xr-x. 20 root       root       4,0K 20. mai   00:40 ..
-drwx------. 41 user       user       4,0K 25. mai   01:44 user  
+$ barp run -p $PWD/docs/examples/barp.d/profiles/local.cfg -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
+Hello 1 🚀
+Hello 2 🚀
+Hello 3 🚀
+Hello 4 🚀
+Hello 5 🚀
+Example error! 💥
+Process exited with code 0
 ```
 
 ## FAQ

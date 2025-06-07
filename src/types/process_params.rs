@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::types::task_args::ConfigParam;
 
 #[derive(Default)]
@@ -5,6 +7,8 @@ use crate::types::task_args::ConfigParam;
 pub struct ProcessParams {
     /// Command line arguments for command
     pub args: Vec<String>,
+    /// Environment variables
+    pub env: HashMap<String, String>,
 }
 
 impl TryFrom<&ConfigParam> for ProcessParams {
