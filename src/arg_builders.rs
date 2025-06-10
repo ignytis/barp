@@ -17,20 +17,18 @@ pub fn build_process_params(arg_builder_name: &String, task_cfg: &ConfigParam, c
 
 /// A standard builder function for tasks of 'command' type
 fn build_params_for_command(task_cfg: &ConfigParam, cmd_args: &VecDeque<String>) -> Result<ProcessParams, String> {
-    let process_params: ProcessParams = task_cfg.try_into()?;
-    let mut args_final = process_params.args.clone();
-    args_final.extend(cmd_args.clone());
-    Ok((&args_final).into())
+    let mut process_params: ProcessParams = task_cfg.try_into()?;
+    process_params.args.extend(cmd_args.clone());
+    Ok(process_params)
 }
 
 /// Looks up the argument builder across Lua scripts
 fn build_params_with_lua(arg_builder_name: &String, task_cfg: &ConfigParam, cmd_args: &VecDeque<String>) -> Result<ProcessParams, String> {
-    let process_params: ProcessParams = task_cfg.try_into()?;
-    let mut args_final = process_params.args.clone();
-    args_final.extend(cmd_args.clone());
-
+    let mut process_params: ProcessParams = task_cfg.try_into()?;
+    let mut args_joined = process_params.args.clone();
+    args_joined.extend(cmd_args.clone());
     
-    let path = "docs/examples/barp.d/arg_builders/docker.lua";
+    let path = "docs/examples/barp.d/arg_builders/docker.lua"; // TODO: scan a directory with plugins
     let file = match std::fs::read_to_string(path) {
         Ok(f) => f,
         Err(e) => return Err(format!("Failed to open a Lua script '{}': {}", path, e))
@@ -45,12 +43,12 @@ fn build_params_with_lua(arg_builder_name: &String, task_cfg: &ConfigParam, cmd_
         return Err(format!("Arg builder '{}' not found", arg_builder_name))
     }
     
-    
     let run_func = lua.globals().get::<mlua::Function>("build").unwrap();
-    let args_final: Vec<String> = match run_func.call(args_final) {
+    let args_final: Vec<String> = match run_func.call(args_joined) {
         Ok(r) => r,
         Err(e) => return Err(format!("Lua function call failed: {}", e)),
     };
+    process_params.args = args_final;
 
-    Ok((&args_final).into())
+    Ok(process_params)
 }
