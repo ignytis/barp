@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::types::task_args::ConfigParam;
+use crate::types::task_args::{config_param_get_key_as_string_kv_hashmap, ConfigParam};
 
 #[derive(Debug, Default)]
 /// Parameters of process to run
@@ -35,25 +35,13 @@ impl TryFrom<&ConfigParam> for ProcessParams {
                 _ => None,
             })
             .collect();
-        // Resolve the env vars
-        let env = match value_map.get("env") {
-            Some(x) => match x {
-                ConfigParam::HashMap(v) => v.clone(),
-                _ => return Err(String::from("Cannot initialize the process parameters: the 'env' property is not a hashmap")),
+        result.env = match config_param_get_key_as_string_kv_hashmap(&value, "env") {
+            Ok(o) => match o {
+                Some(r) => r,
+                None => HashMap::new(),
             },
-            None => HashMap::new(),
+            Err(e) => return Err(format!("Failed to read the environment variable configuration: {}", e))
         };
-        let env: HashMap<String, String> = env.iter()
-            .map(|(k, v)| {
-                let v2 = match v {
-                    ConfigParam::String(v) => v.clone(),
-                    ConfigParam::Int(v) => format!("{}", v),
-                    _ => return Err(format!("Invalid data type of environment variable '{}'. It must be string or integer", k.clone()))
-                };
-                Ok((k.clone(), v2))
-            })
-            .collect::<Result<_, _>>()?;
-        result.env = env;
 
         Ok(result)
     }

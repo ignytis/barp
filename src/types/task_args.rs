@@ -14,14 +14,14 @@ pub enum ConfigParam {
     Vec(Vec<ConfigParam>),
 }
 
-/// Returns a parameter by key
-/// NB! Removed the existing item from config. It's useful for cases when parameter is not needed anywhere else.
-pub fn config_param_consume_hashmap_key<S: Into<String>>(cfg: &mut ConfigParam, key: S)
+/// Returns a parameter by key.
+/// Unlike config_param_consume_hashmap_key, doesn't remove the key from collection
+pub fn config_param_get_hashmap_key<S: Into<String>>(cfg: &ConfigParam, key: S)
         -> Result<Option<ConfigParam>, String> {
     match cfg {
         ConfigParam::HashMap(m) => {
-            match m.remove(&key.into()) {
-                Some(x) => Ok(Some(x)),
+            match m.get(&key.into()) {
+                Some(x) => Ok(Some(x.clone())),
                 None => Ok(None),
             }
             
@@ -31,6 +31,7 @@ pub fn config_param_consume_hashmap_key<S: Into<String>>(cfg: &mut ConfigParam, 
 }
 
 /// Merges two configuration params into new instance of configuration params
+/// Collections are merged for sure. In case of scalar values - return the second value
 pub fn config_params_merge(first: ConfigParam, second: ConfigParam) -> Result<ConfigParam, String> {
     match first {
         ConfigParam::HashMap(m_first) => {
@@ -48,8 +49,45 @@ pub fn config_params_merge(first: ConfigParam, second: ConfigParam) -> Result<Co
                 _ => return Err(String::from("The first item is hashmap, the second is not")),
             }
         },
+        ConfigParam::Vec(v_first) => {
+            match second {
+                ConfigParam::Vec(v_second) => {
+                    Ok(ConfigParam::Vec(v_first.iter().chain(v_second.iter()).cloned().collect()))
+                },
+                _ => return Err(String::from("The first item is vector, the second is not")),
+            }
+        },
         _ => Ok(second.clone()),
     }
+}
+
+/// Returns a property of provided config as a haspmap where keys and values are strings.
+/// Returns an error if provided collection or requested key are not hashmaps.
+pub fn config_param_get_key_as_string_kv_hashmap<S: Into<String>>(config_param: &ConfigParam, key: S) -> Result<Option<HashMap<String, String>>, String> {
+    let key: String = key.into();
+    let config_param_map = match config_param {
+        ConfigParam::HashMap(m) => m,
+        _ => return Err(format!("Cannot read a key '{}' into hashmap: the type of provided config is not hashmap", key)),
+    };
+
+    let config_param_map = match config_param_map.get(&key) {
+        Some(x) => match x {
+            ConfigParam::HashMap(v) => v.clone(),
+            _ => return Err(format!("Cannot read a key '{}' into hashmap: this attribute is not hashmap", &key)),
+        },
+        None => return Ok(None),
+    };
+    let v: HashMap<String, String> = config_param_map.iter()
+        .map(|(k, v)| {
+            let v2 = match v {
+                ConfigParam::String(v) => v.clone(),
+                ConfigParam::Int(v) => format!("{}", v),
+                _ => return Err(format!("Invalid data type of environment variable '{}'. It must be string or integer", k.clone()))
+            };
+            Ok((k.clone(), v2))
+        })
+        .collect::<Result<_, _>>()?;
+    Ok(Some(v))
 }
 
 /// Returns an instance of task config from reference

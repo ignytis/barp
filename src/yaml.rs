@@ -11,13 +11,13 @@ pub fn read_yaml_file_as_hashmap(path: &String) -> Result<ConfigParam, String> {
         Err(e) => return Err(format!("Failed to read the YAML file '{path}': {}", e)),
     };
 
-    let profile = match YamlLoader::load_from_str(&contents) {
+    let yaml_doc = match YamlLoader::load_from_str(&contents) {
         Ok(s) => s,
         Err(e) => return Err(format!("Failed to parse the contents of YAML profile: {}", e)),
     };
 
     // YAML lib returns the result as vector; take the first element only
-    let y = match profile.get(0) {
+    let y = match yaml_doc.get(0) {
         None => return Err(String::from("Profile config must be a map, but a list is provided instead.")),
         Some(p) => p.clone(),
     };

@@ -3,13 +3,11 @@ use std::env;
 
 use clap::{ArgAction, Args};
 
-use crate::arg_builders::build_process_params;
+use crate::arg_builders::{build_process_params, BuildProcessParamsArgs};
 use crate::system::run_process;
-use crate::types::task_args::{config_param_consume_hashmap_key, config_params_merge, get_task_config_from_reference, ConfigParam};
+use crate::types::task_args::{config_param_get_hashmap_key, config_params_merge, get_task_config_from_reference, ConfigParam};
+use crate::types::task_config::{ATTR_KIND, ATTR_TASK_DEFAULTS};
 use crate::yaml::read_yaml_file_as_hashmap;
-
-const ATTR_KIND: &str = "kind";
-const ATTR_TASK_DEFAULTS: &str = "task_defaults";
 
 /// Arguments of the 'run' command
 #[derive(Args, Clone, Debug)]
@@ -26,9 +24,9 @@ pub struct RunArgs {
 
 /// The 'run' command
 pub async fn run(run_args: &RunArgs) -> Result<(), String> {
-    let mut profile = load_profile(&run_args.profile_path)?;
+    let profile = load_profile(&run_args.profile_path)?;
     // Final task arguments = task defaults from profile (if any) + task arguments in the task template
-    let task_cfg_defaults = match config_param_consume_hashmap_key(&mut profile, ATTR_TASK_DEFAULTS)? {
+    let task_cfg_defaults = match config_param_get_hashmap_key(&profile, ATTR_TASK_DEFAULTS)? {
         Some(d) => d,
         None => ConfigParam::HashMap(HashMap::new()),
     };
@@ -36,7 +34,7 @@ pub async fn run(run_args: &RunArgs) -> Result<(), String> {
     let mut task_cfg = config_params_merge(task_cfg_defaults, task_cfg)?;
 
     // Remove the arg_builder name from configuration because it will not be needed inside
-    let arg_builder_name = match config_param_consume_hashmap_key(&mut task_cfg, ATTR_KIND)? {
+    let arg_builder_name = match config_param_get_hashmap_key(&mut task_cfg, ATTR_KIND)? {
         Some(x) => match x {
             ConfigParam::String(r) => r,
             _ => return Err(format!("Attribute '{}' is not a string", ATTR_KIND)),
@@ -45,7 +43,12 @@ pub async fn run(run_args: &RunArgs) -> Result<(), String> {
     };
 
     let cmd_args: VecDeque<String> = run_args.args.clone().into();
-    let process_params = build_process_params(&arg_builder_name, &task_cfg, &cmd_args)?;
+    let process_params = build_process_params(&BuildProcessParamsArgs {
+        builder_name: arg_builder_name,
+        cmd_args,
+        profile,
+        task_cfg,
+    })?;
     run_process(&process_params).await
 }
 
