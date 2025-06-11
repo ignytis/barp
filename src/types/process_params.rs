@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use mlua::FromLua;
+
 use crate::types::task_args::{config_param_get_key_as_string_kv_hashmap, ConfigParam};
 
 #[derive(Debug, Default)]
@@ -44,5 +46,28 @@ impl TryFrom<&ConfigParam> for ProcessParams {
         };
 
         Ok(result)
+    }
+}
+
+impl FromLua for ProcessParams {
+    fn from_lua(value: mlua::Value, _lua: &mlua::Lua) -> mlua::Result<Self> {
+        let mut result = ProcessParams::default();
+        let lua_table = match value {
+            mlua::Value::Table(t) => t,
+            _ => return mlua::Result::Err(mlua::Error::FromLuaConversionError { from: "table", to: format!("ProcessParams"),
+                message: Some(format!("Expected a table from run() Lua function, but got another type")) }),
+        };
+        result.args = match lua_table.get("args") {
+            Ok(r) => r,
+            Err(e) => return mlua::Result::Err(mlua::Error::FromLuaConversionError { from: "table", to: format!("ProcessParams"),
+                message: Some(format!("Failed to read 'args' from run() Lua function response: {}", e)) }),
+        };
+        result.env = match lua_table.get("env") {
+            Ok(r) => r,
+            Err(e) => return mlua::Result::Err(mlua::Error::FromLuaConversionError { from: "table", to: format!("ProcessParams"),
+                message: Some(format!("Failed to read 'env' from run() Lua function response: {}", e)) }),
+        };
+
+        mlua::Result::Ok(result)
     }
 }

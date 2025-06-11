@@ -15,7 +15,6 @@ pub struct BuildProcessParamsArgs {
     pub task_cfg: ConfigParam,
 }
 
-
 /// Builds parameters for process execution
 pub fn build_process_params(args: &BuildProcessParamsArgs) -> Result<ProcessParams, String> {
     let params = match args.builder_name.as_str() {
@@ -61,8 +60,8 @@ fn build_params_for_command(args: &BuildProcessParamsArgs) -> Result<ProcessPara
 
 /// Looks up the argument builder across Lua scripts
 fn build_params_with_lua(args: &BuildProcessParamsArgs) -> Result<ProcessParams, String> {
-    let mut process_params: ProcessParams = (&args.task_cfg).try_into()?;
-    process_params.args.extend(args.cmd_args.clone());
+    // Re-use the logic for command line. Lua will be added on top of it.
+    let process_params: ProcessParams = build_params_for_command(&args)?;
     
     let path = "docs/examples/barp.d/arg_builders/docker.lua"; // TODO: scan a directory with plugins
     let file = match std::fs::read_to_string(path) {
@@ -80,11 +79,10 @@ fn build_params_with_lua(args: &BuildProcessParamsArgs) -> Result<ProcessParams,
     }
     
     let run_func = lua.globals().get::<mlua::Function>("build").unwrap();
-    let args_final: Vec<String> = match run_func.call(process_params.args) {
+    let args_final: ProcessParams = match run_func.call((process_params.args, process_params.env.clone())) {
         Ok(r) => r,
         Err(e) => return Err(format!("Lua function call failed: {}", e)),
     };
-    process_params.args = args_final;
 
-    Ok(process_params)
+    Ok(args_final)
 }
