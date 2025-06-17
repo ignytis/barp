@@ -8,3 +8,4 @@ clap = { version = "4.5.38", features = ["derive"] }
 mlua = { version = "0.10.5", features = ["lua53", "vendored"] }
 tokio = { version = "1.45.1", features = ["full"] }
 yaml-rust = "0.4.5"
+walkdir = "2.5.0"

@@ -19,6 +19,6 @@ function build(args, env)
 
     return {
         args=out_args,
-        env={}
+        env={} -- The Docker process has not own env vars. Env vars are passed as -e arguments
     }
 end
