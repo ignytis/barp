@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use mlua::IntoLua;
+
 use crate::yaml::read_yaml_file_as_hashmap;
 
 /// A unit of YAML configuration. Key is always a string,
@@ -12,6 +14,36 @@ pub enum ConfigParam {
     Null,
     String(String),
     Vec(Vec<ConfigParam>),
+}
+
+impl IntoLua for ConfigParam {
+    fn into_lua(self, lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
+        let r = match self {
+            ConfigParam::Boolean(v) => mlua::Value::Boolean(v),
+            ConfigParam::HashMap(m) => {
+                let mut lua_map: HashMap<String, mlua::Value> = HashMap::new();
+                for (k, v) in m {
+                    let v_lua = v.into_lua(&lua)?;
+                    lua_map.insert(k, v_lua);
+                }
+                let r = lua.create_table_from(lua_map)?;
+                mlua::Value::Table(r)
+            },
+            ConfigParam::Int(v) => mlua::Value::Integer(v),
+            ConfigParam::Null => mlua::Value::Nil,
+            ConfigParam::String(s) => lua_try_create_string(&lua, s)?,
+            ConfigParam::Vec(vc) => {
+                let mut lua_vec: Vec<mlua::Value> = Vec::new();
+                for v in vc {
+                    let v_lua = v.into_lua(&lua)?;
+                    lua_vec.push(v_lua);
+                }
+                let r = lua.create_table_from(lua_vec.iter().enumerate())?;
+                mlua::Value::Table(r)
+            },
+        };
+        mlua::Result::Ok(r)
+    }
 }
 
 /// Returns a parameter by key.
@@ -110,5 +142,13 @@ pub fn get_task_config_from_reference(task_cfg_ref: &String) -> Result<ConfigPar
     match task_cfg.get(args_id) {
         Some(c) => Ok(c.clone()),
         None => return Err(format!("Task configuration with ID '{}' not found in file '{}'", args_id, path))
+    }
+}
+
+fn lua_try_create_string<S: Into<String>>(lua: &mlua::Lua, val: S) -> mlua::Result<mlua::Value> {
+    match lua.create_string(val.into()) {
+        mlua::Result::Ok(v) => Ok(mlua::Value::String(v)),
+        mlua::Result::Err(e) =>
+            Err(mlua::Error::RuntimeError(format!("Faled to create a string: {}", e))),
     }
 }

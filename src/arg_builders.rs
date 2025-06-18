@@ -65,13 +65,16 @@ fn build_params_with_lua(args: &BuildProcessParamsArgs) -> Result<ProcessParams,
     // Re-use the logic for command line. Lua will be added on top of it.
     let process_params: ProcessParams = build_params_for_command(&args)?;
     
-    let lua = match lua_get_env_for_arg_builder(&args.builder_name)? {
+    let (lua, script_path) = match lua_get_env_for_arg_builder(&args.builder_name)? {
         Some(l) => l,
         None => return Err(format!("Arg builder '{}' not found", args.builder_name))
     };
     
-    let run_func = lua.globals().get::<mlua::Function>("build").unwrap();
-    let args_final: ProcessParams = match run_func.call((process_params.args, process_params.env.clone())) {
+    let run_func = match lua.globals().get::<mlua::Function>("build") {
+        Ok(f) => f,
+        Err(e) => return Err(format!("Failed to locate the 'build' function in Lua script '{}': {}", script_path, e))
+    };
+    let args_final: ProcessParams = match run_func.call((process_params.args, process_params.env.clone(), args.profile.clone())) {
         Ok(r) => r,
         Err(e) => return Err(format!("Lua function call failed: {}", e)),
     };
@@ -80,7 +83,7 @@ fn build_params_with_lua(args: &BuildProcessParamsArgs) -> Result<ProcessParams,
 }
 
 /// Returns a Lua environment with loaded functions for builder with provided name
-fn lua_get_env_for_arg_builder(builder_name: &String) -> Result<Option<Lua>, String> {
+fn lua_get_env_for_arg_builder(builder_name: &String) -> Result<Option<(Lua, String)>, String> {
     let lua = Lua::new();
     // Locate a Lua script file which arg parser ID matches to the one provided in arguments
     let arg_builders_dir = match get_arg_builders_dir() {
@@ -105,10 +108,13 @@ fn lua_get_env_for_arg_builder(builder_name: &String) -> Result<Option<Lua>, Str
 
         lua.load(file).exec().unwrap();
 
-        let id_func = lua.globals().get::<mlua::Function>("id").unwrap();
+        let id_func = match lua.globals().get::<mlua::Function>("id") {
+            Ok(f) => f,
+            Err(e) => return Err(format!("Failed to locate the 'id' function in Lua script '{}': {}", lua_file_path, e))
+        };
         let lua_builder_name: String = id_func.call(()).unwrap();
         if &lua_builder_name == builder_name {
-            return Ok(Some(lua))
+            return Ok(Some((lua, lua_file_path)))
         }
     }
 
