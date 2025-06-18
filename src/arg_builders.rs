@@ -5,7 +5,13 @@ use walkdir::WalkDir;
 
 use crate::system::get_arg_builders_dir;
 use crate::types::process_params::ProcessParams;
-use crate::types::task_args::{config_param_get_hashmap_key, config_param_get_key_as_string_kv_hashmap, ConfigParam};
+use crate::types::task_args::{
+    config_param_get_hashmap_key,
+    config_param_get_key_as_string_kv_hashmap,
+    config_param_get_key_remove_key_from_hashmap,
+    config_params_merge,
+    ConfigParam
+};
 use crate::types::task_config::ATTR_TASK_DEFAULTS;
 
 
@@ -40,22 +46,15 @@ fn build_params_for_command(args: &BuildProcessParamsArgs) -> Result<ProcessPara
         Err(e) => return Err(format!("Failed to read the task default config from profile: {}", e))
     };
 
-    let mut env = match config_param_get_key_as_string_kv_hashmap(&task_defaults, "env") {
+    let mut task_cfg_merged= config_params_merge(task_defaults, args.task_cfg.clone())?;
+    process_params.env = match config_param_get_key_as_string_kv_hashmap(&task_cfg_merged, "env") {
         Ok(o) => match o {
             Some(v) => v,
             None => HashMap::new(),
         },
-        Err(e) => return Err(format!("Failed to read the env config from profile: {}", e))
+        Err(e) => return Err(format!("Failed to format the environment variables: {}", e))
     };
-    let env_task = match config_param_get_key_as_string_kv_hashmap(&args.task_cfg, "env") {
-        Ok(o) => match o {
-            Some(c) => c,
-            None => HashMap::new(),
-        },
-        Err(e) => return Err(format!("Failed to read the env config from profile: {}", e))
-    };
-    env.extend(env_task);
-    process_params.env = env;
+    config_param_get_key_remove_key_from_hashmap(&mut task_cfg_merged, "env")?;
 
     Ok(process_params)
 }
