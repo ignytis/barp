@@ -1,13 +1,24 @@
 import logging
 import subprocess
 import threading
+from dataclasses import dataclass
 
 
-def system_run_command(args: list[str], env: dict) -> None:
+@dataclass
+class SystemCommand:
+    """Stores payload for system command"""
+
+    args: list[str]
+    """Aeguments e.g. ['ls', '-l']"""
+    env: dict[str, str]
+    """Environment variables for system command"""
+
+
+def system_run_command(command: SystemCommand) -> None:
     """Runs a system command"""
     process = subprocess.Popen(
-        args=args,
-        env=env,
+        args=command.args,
+        env=command.env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=1,
