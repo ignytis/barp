@@ -31,6 +31,9 @@ cli = [
 [project.scripts]
 barp = "barp.cli.main:cmd_group_main"
 
+[project.entry-points."barp.arg_builders"]
+command = "barp.arg_builders.system_command:SystemCommandArgBuilder"
+
 [project.urls]
 Homepage = "https://github.com/ignytis/barp"
 
