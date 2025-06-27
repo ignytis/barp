@@ -33,6 +33,7 @@ barp = "barp.cli.main:cmd_group_main"
 
 [project.entry-points."barp.arg_builders"]
 command = "barp.arg_builders.system_command:SystemCommandArgBuilder"
+docker = "barp.arg_builders.docker:DockerArgBuilder"
 
 [project.urls]
 Homepage = "https://github.com/ignytis/barp"

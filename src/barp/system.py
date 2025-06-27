@@ -1,7 +1,7 @@
 import logging
 import subprocess
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -10,7 +10,7 @@ class SystemCommand:
 
     args: list[str]
     """Aeguments e.g. ['ls', '-l']"""
-    env: dict[str, str]
+    env: dict[str, str] | None = field(default_factory=dict)
     """Environment variables for system command"""
 
 
