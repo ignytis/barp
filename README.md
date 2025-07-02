@@ -26,6 +26,22 @@ Example error! 💥
 ```
 
 __Composing profile from multiple configuration files:__
+
+_Case 1. Using 'local' profile only:_
+
+```bash
+barp run \
+    -p $PWD/docs/examples/barp.d/profiles/local.cfg \
+    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+
+BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
+BARP_SAMPLE_PROFILE_VAR_C=
+BARP_SAMPLE_PROFILE_VAR_D=profile_env_val_task
+BARP_SAMPLE_TASK_VAR_A=task_test
+```
+
+_Case 2. Using 'common' profile is added:_
+
 ```bash
 barp run \
     -p $PWD/docs/examples/barp.d/profiles/common.cfg:$PWD/docs/examples/barp.d/profiles/local.cfg \
