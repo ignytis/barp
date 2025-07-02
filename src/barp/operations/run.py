@@ -43,7 +43,7 @@ def run(template_path: str, additional_args: list[str], profile_path: str) -> No
     if profile.task_defaults is not None:
         task_tpl = dict_deep_merge(profile.task_defaults, task_tpl)
 
-    task_tpl: BaseTaskTemplate = validate_child_model(task_tpl, "barp.task_templates", "kind")
+    task_tpl: BaseTaskTemplate = validate_child_model(task_tpl, "barp.types.task_templates", "kind")
 
     executor = get_executor(profile, task_tpl)
     if executor is None:

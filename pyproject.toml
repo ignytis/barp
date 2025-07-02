@@ -34,11 +34,15 @@ runtime = [ # execution of tasks
 [project.scripts]
 barp = "barp.cli.main:cmd_group_main"
 
+[project.entry-points."barp.types.environments"]
+local = "barp.types.environments.local:LocalEnvironment"
+
+[project.entry-points."barp.types.task_templates"]
+command = "barp.types.tasks.command:CommandTaskTemplate"
+
 [project.entry-points."barp.executors"]
 local = "barp.executors.local:LocalExecutor"
 
-[project.entry-points."barp.task_templates"]
-command = "barp.types.tasks.command:CommandTaskTemplate"
 
 [project.urls]
 Homepage = "https://github.com/ignytis/barp"
