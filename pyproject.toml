@@ -20,20 +20,25 @@ classifiers = [
 ]
 
 dependencies = [
-  "configtpl~=1.0.0"
+  "pydantic==2.11.*",
 ]
 
 [project.optional-dependencies]
-cli = [
+cli = [ # command-line interface
   "click>=8.1.8,<9.0.0",
+]
+runtime = [ # execution of tasks
+  "configtpl~=1.0.0",
 ]
 
 [project.scripts]
 barp = "barp.cli.main:cmd_group_main"
 
-[project.entry-points."barp.arg_builders"]
-command = "barp.arg_builders.system_command:SystemCommandArgBuilder"
-docker = "barp.arg_builders.docker:DockerArgBuilder"
+[project.entry-points."barp.executors"]
+local = "barp.executors.local:LocalExecutor"
+
+[project.entry-points."barp.task_templates"]
+command = "barp.types.tasks.command:CommandTaskTemplate"
 
 [project.urls]
 Homepage = "https://github.com/ignytis/barp"

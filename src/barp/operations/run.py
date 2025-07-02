@@ -1,19 +1,34 @@
+import logging
+from typing import TYPE_CHECKING
+
 from configtpl.config_builder import ConfigBuilder
 from configtpl.utils.dicts import dict_deep_merge
 
-from barp.arg_builders.factory import arg_builder_find_by_task_kind
-from barp.system import system_run_command
+from barp.executors.factory import get_executor
+from barp.models import validate_child_model
+from barp.operations.decorators import barp_operation
+from barp.types.profile import Profile
 
+if TYPE_CHECKING:
+    from barp.types.tasks.base import BaseTaskTemplate
+
+ERROR_PROFILE_NO_ENV_PROVIDED = (
+    "No environment configuration is provided in profile.Please add the `environment` section to profile"
+)
 ERROR_TEMPLATE_PATH_FMT = "Template path should be in format 'path_to_file:task_template_id'e.g. /tmp/tasks.cfg:my_task"
 ERROR_TEMPLATE_ID_NOT_FOUND = "Task template with `{id}` not found in file `{path}`"
 ERROR_TASK_KIND_MISING = "Task kind is not provided in template. Please add the 'kind' attribute"
-ERROR_ARG_BUILDER_NOT_FOUND = "Argument builder not found for task kind: {task_kind}"
+ERROR_EXECUTOR_NOT_FOUND = "Cannot find an executor for task kind `{task_kind}` in environment `{env_kind}`"
+
+logger = logging.getLogger(__name__)
 
 
+@barp_operation
 def run(template_path: str, additional_args: list[str], profile_path: str) -> None:
     """Runs a process"""
     cfg_builder = ConfigBuilder()
     profile = cfg_builder.build_from_files(profile_path)
+    profile = Profile.model_validate(profile)
 
     template_path_parts = template_path.rsplit(":", 1)
     if len(template_path_parts) != 2:  # noqa: PLR2004 2 is not a magic value
@@ -21,22 +36,17 @@ def run(template_path: str, additional_args: list[str], profile_path: str) -> No
 
     template_file, template_id = template_path_parts
     template_file_rendered = cfg_builder.build_from_files(template_file)
-    template = template_file_rendered.get(template_id)
-    if template is None:
+    task_tpl = template_file_rendered.get(template_id)
+    if task_tpl is None:
         raise ValueError(ERROR_TEMPLATE_ID_NOT_FOUND.format(id=template_id, path=template_file))
 
-    # merge task defaults from profile into template
-    if "task_defaults" in profile:
-        template = dict_deep_merge(profile["task_defaults"], template)
-        del profile["task_defaults"]
+    if profile.task_defaults is not None:
+        task_tpl = dict_deep_merge(profile.task_defaults, task_tpl)
 
-    task_kind = template.get("kind")
-    if task_kind is None:
-        raise ValueError(ERROR_TASK_KIND_MISING)
+    task_tpl: BaseTaskTemplate = validate_child_model(task_tpl, "barp.task_templates", "kind")
 
-    arg_builder = arg_builder_find_by_task_kind(task_kind, profile)
-    if arg_builder is None:
-        raise RuntimeError(ERROR_ARG_BUILDER_NOT_FOUND.format(task_kind=task_kind))
-    cmd = arg_builder.build(template, additional_args)
+    executor = get_executor(profile, task_tpl)
+    if executor is None:
+        raise ValueError(ERROR_EXECUTOR_NOT_FOUND.format(task_kind=task_tpl.kind, env_kind=profile.environment.kind))
 
-    system_run_command(cmd)
+    executor.execute(task_tpl, additional_args)
