@@ -35,6 +35,7 @@ def run(template_path: str, additional_args: list[str], profile_path: str) -> No
         raise ValueError(ERROR_TEMPLATE_PATH_FMT)
 
     template_file, template_id = template_path_parts
+    # TODO: apply profile. Need a new ConfigBuilder?
     template_file_rendered = cfg_builder.build_from_files(template_file)
     task_tpl = template_file_rendered.get(template_id)
     if task_tpl is None:

@@ -13,13 +13,29 @@ Early WIP
 __Basic execution via command line arguments:__
 
 ```bash
-$ barp run -p $PWD/docs/examples/barp.d/profiles/local.cfg -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
+$ barp run \
+    -p $PWD/docs/examples/barp.d/profiles/local.cfg \
+    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
+
 Hello 1 🚀
 Hello 2 🚀
 Hello 3 🚀
 Hello 4 🚀
 Hello 5 🚀
 Example error! 💥
+```
+
+__Composing profile from multiple configuration files:__
+```bash
+barp run \
+    -p $PWD/docs/examples/barp.d/profiles/common.cfg:$PWD/docs/examples/barp.d/profiles/local.cfg \
+    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+
+BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
+BARP_SAMPLE_PROFILE_VAR_B=profile_env_val_b
+BARP_SAMPLE_PROFILE_VAR_C=append_profile_env_val_b
+BARP_SAMPLE_PROFILE_VAR_D=profile_env_val_task
+BARP_SAMPLE_TASK_VAR_A=task_test
 ```
 
 __Adjusting the envitonment via env vars:__
