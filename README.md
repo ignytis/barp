@@ -13,6 +13,16 @@ Early WIP
 __Basic execution via command line arguments:__
 
 ```bash
+$ barp run -p $PWD/docs/examples/barp.d/profiles/local.cfg -- printenv | grep BARP
+
+BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
+BARP_SAMPLE_PROFILE_VAR_C=
+BARP_SAMPLE_PROFILE_VAR_D=profile_env_val_task
+```
+Since `command` is a default task type in profile `docs/examples/barp.d/profiles/local.cfg`,
+the provided arguments automatically resolve into system command.
+
+```bash
 $ barp run \
     -p $PWD/docs/examples/barp.d/profiles/local.cfg \
     -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
@@ -24,6 +34,11 @@ Hello 4 🚀
 Hello 5 🚀
 Example error! 💥
 ```
+
+__Using profile + CLI arguments only:__
+
+If the task template parameter is skipped, the empty template will be used.
+It might be useful for system commands:
 
 __Composing profile from multiple configuration files:__
 
@@ -54,7 +69,7 @@ BARP_SAMPLE_PROFILE_VAR_D=profile_env_val_task
 BARP_SAMPLE_TASK_VAR_A=task_test
 ```
 
-__Adjusting the envitonment via env vars:__
+__Adjusting the environment via env vars:__
 
 ```bash
 # Local process

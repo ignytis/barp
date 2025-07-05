@@ -24,22 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 @barp_operation
-def run(template_path: str, additional_args: list[str], profile_path: str) -> None:
+def run(profile_path: str, template_path: str | None = None, additional_args: list[str] | None = None) -> None:
     """Runs a process"""
+    if additional_args is None:
+        additional_args = []
+
     cfg_builder = ConfigBuilder()
     profile = cfg_builder.build_from_files(profile_path)
     profile = Profile.model_validate(profile)
-
-    template_path_parts = template_path.rsplit(":", 1)
-    if len(template_path_parts) != 2:  # noqa: PLR2004 2 is not a magic value
-        raise ValueError(ERROR_TEMPLATE_PATH_FMT)
-
-    template_file, template_id = template_path_parts
-    # TODO: apply profile. Need a new ConfigBuilder?
-    template_file_rendered = cfg_builder.build_from_files(template_file)
-    task_tpl = template_file_rendered.get(template_id)
-    if task_tpl is None:
-        raise ValueError(ERROR_TEMPLATE_ID_NOT_FOUND.format(id=template_id, path=template_file))
+    task_tpl = _get_task_template(template_path, profile, cfg_builder)
 
     if profile.task_defaults is not None:
         task_tpl = dict_deep_merge(profile.task_defaults, task_tpl)
@@ -51,3 +44,21 @@ def run(template_path: str, additional_args: list[str], profile_path: str) -> No
         raise ValueError(ERROR_EXECUTOR_NOT_FOUND.format(task_kind=task_tpl.kind, env_kind=profile.environment.kind))
 
     executor.execute(task_tpl, additional_args)
+
+
+def _get_task_template(template_path: str | None, profile: dict, cfg_builder: ConfigBuilder) -> dict:
+    """Resolves a task template. If no path is provided, returns an empty template"""
+    if not template_path:
+        return {}
+
+    template_path_parts = template_path.rsplit(":", 1)
+    if len(template_path_parts) != 2:  # noqa: PLR2004 2 is not a magic value
+        raise ValueError(ERROR_TEMPLATE_PATH_FMT)
+
+    template_files, template_id = template_path_parts
+    template_file_rendered = cfg_builder.build_from_files(template_files, ctx={"profile": profile})
+    task_tpl = template_file_rendered.get(template_id)
+    if task_tpl is None:
+        raise ValueError(ERROR_TEMPLATE_ID_NOT_FOUND.format(id=template_id, path=template_files))
+
+    return task_tpl

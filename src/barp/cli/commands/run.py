@@ -10,6 +10,6 @@ from barp.operations.run import run
 @click.option("--profile", "-p", "profile_path", envvar="BARP_PROFILE", help="Path to file with profile conifg")
 @click.option("--template", "-t", "template_path", help="Path to task template e.g. /test/example.yaml:my_task")
 @click.argument("args", nargs=-1)
-def cmd_run(template_path: str, args: tuple[str], profile_path: str | None = None) -> None:
+def cmd_run(args: tuple[str], template_path: str | None = None, profile_path: str | None = None) -> None:
     """An entry point of 'run' command"""
-    run(template_path, list(args), profile_path)
+    run(profile_path, template_path, None if args is None else list(args))
