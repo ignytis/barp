@@ -14,14 +14,11 @@ class LocalExecutor(BaseExecutor):
     @classmethod
     def supports(cls, environment: BaseEnvironment, task_template: BaseTaskTemplate) -> bool:
         """Returns True if a system command executes in local environment"""
-        return environment.kind == "local" and task_template.kind == "command"
+        return isinstance(environment, LocalEnvironment) and isinstance(task_template, CommandTaskTemplate)
 
     def execute(self, task_template: CommandTaskTemplate, additional_args: list[str]) -> None:
         """Executes the task from template"""
-        # TODO: downcast using Pydantic
-        profile_env = LocalEnvironment.model_validate(
-            {**self.profile.environment.model_dump(), **(self.profile.environment.model_extra or {})}
-        )
+        profile_env: LocalEnvironment = self.profile.environment
         env = {**(os.environ if profile_env.env_passthrough else {}), **profile_env.env, **task_template.env}
 
         cmd = SystemCommand(args=task_template.args + additional_args, env=env)
