@@ -32,6 +32,7 @@ dev = [ # dependencies for Barp development
   "pre_commit==4.2.*",
 
 ]
+env_docker = ["docker>=7.1.0,<8.0.0"] # support for Docker environment
 runtime = [ # execution of tasks
   "configtpl~=1.0.0",
 ]
@@ -40,13 +41,16 @@ runtime = [ # execution of tasks
 barp = "barp.cli.main:cmd_group_main"
 
 [project.entry-points."barp.types.environments"]
+docker = "barp.types.environments.docker:DockerEnvironment"
 local = "barp.types.environments.local:LocalEnvironment"
 
 [project.entry-points."barp.types.task_templates"]
 command = "barp.types.tasks.command:CommandTaskTemplate"
+docker = "barp.types.tasks.docker:DockerTaskTemplate"
 
 [project.entry-points."barp.executors"]
-local = "barp.executors.local:LocalExecutor"
+docker_command = "barp.executors.docker.docker_command:DockerCommandExecutor"
+local_command = "barp.executors.local.local_command:LocalCommandExecutor"
 
 
 [project.urls]

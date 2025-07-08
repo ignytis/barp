@@ -27,7 +27,8 @@ class BaseExecutor(abc.ABC):
         """Executes the task from template"""
         raise NotImplementedError
 
-    def get_priority(self) -> int:
+    @classmethod
+    def get_priority(cls) -> int:
         """
         Returns a priority.
 

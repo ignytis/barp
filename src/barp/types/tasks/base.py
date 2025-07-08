@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from barp.types.models import BaseStrictModel
 
 
-class BaseTaskTemplate(BaseModel):
+class BaseTaskTemplate(BaseStrictModel):
     """A base class for task templates."""
 
     kind: str

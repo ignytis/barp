@@ -1,16 +1,17 @@
 from typing import Annotated
 
-from pydantic import BaseModel, ValidatorFunctionWrapHandler, WrapValidator
+from pydantic import ValidatorFunctionWrapHandler, WrapValidator
 
 from barp.models import validate_child_model
 from barp.types.environments.base import BaseEnvironment
+from barp.types.models import BaseStrictModel
 
 
 def _convert_env(v: object, h: ValidatorFunctionWrapHandler) -> BaseEnvironment:
     return h(validate_child_model(v, "barp.types.environments", "kind"))
 
 
-class Profile(BaseModel):
+class Profile(BaseStrictModel):
     """
     Represents the contents of profile configuration file.
 
@@ -19,5 +20,7 @@ class Profile(BaseModel):
 
     environment: Annotated[BaseEnvironment, WrapValidator(_convert_env)]
     """Environment configuration"""
+    name: str
+    """Profile name"""
     task_defaults: dict
     """Defaults which will be applied to all tasks running with given profile"""

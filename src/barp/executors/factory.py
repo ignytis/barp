@@ -14,6 +14,6 @@ def get_executor(profile: Profile, task_tpl: BaseTaskTemplate) -> BaseExecutor |
     executor_classes = [x for x in executor_classes if x.supports(profile.environment, task_tpl)]
     if not executor_classes:
         return None
-    executor_classes = sorted(executor_classes, key=lambda x: x.get_priority, reverse=True)
+    executor_classes = sorted(executor_classes, key=lambda x: x.get_priority(), reverse=True)
 
     return executor_classes[0](profile=profile)

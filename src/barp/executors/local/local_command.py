@@ -8,13 +8,13 @@ from barp.types.tasks.base import BaseTaskTemplate
 from barp.types.tasks.command import CommandTaskTemplate
 
 
-class LocalExecutor(BaseExecutor):
-    """Executes tasks locally"""
+class LocalCommandExecutor(BaseExecutor):
+    """Executes system commands locally"""
 
     @classmethod
     def supports(cls, environment: BaseEnvironment, task_template: BaseTaskTemplate) -> bool:
         """Returns True if a system command executes in local environment"""
-        return isinstance(environment, LocalEnvironment) and isinstance(task_template, CommandTaskTemplate)
+        return type(environment) is LocalEnvironment and type(task_template) is CommandTaskTemplate
 
     def execute(self, task_template: CommandTaskTemplate, additional_args: list[str]) -> None:
         """Executes the task from template"""

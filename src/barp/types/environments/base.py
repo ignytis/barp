@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from barp.types.models import BaseStrictModel
 
 
-class BaseEnvironment(BaseModel):
+class BaseEnvironment(BaseStrictModel):
     """A base class for environment."""
 
     kind: str
