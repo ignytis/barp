@@ -37,13 +37,18 @@ class DockerCommandExecutor(BaseExecutor):
 
         client = docker.from_env(environment={**os.environ, **profile_env.env} if profile_env.env_passthrough else {})
 
+        if task_template.pull_image:
+            self.logger.info("Pulling image %s...", task_template.image)
+            client.images.pull(task_template.image)
+
         container = client.containers.run(
-            auto_remove=True,
+            auto_remove=task_template.auto_remove,
             detach=True,
             command=task_template.args + additional_args,
             image=task_template.image,
-            entrypoint=None,
+            entrypoint=task_template.entry_point,
             environment=task_template.env,
+            volumes=[f"{v.host_path}:{v.container_path}:{v.mode}" for v in task_template.volumes],
         )
         for line in container.logs(stream=True):
             print(line.decode("utf-8"), end="")  # noqa: T201 raw output of logs

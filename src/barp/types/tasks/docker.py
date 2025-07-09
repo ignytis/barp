@@ -35,7 +35,13 @@ class DockerTaskTemplate(CommandTaskTemplate):
 
     kind: Literal["docker"] = "docker"
 
+    auto_remove: str | None = None
+    """Auto remove container after execution. Might be overridden for debug reasons"""
+    entry_point: str | None = None
+    """Entry point to use"""
     image: str
     """Image to use"""
+    pull_image: bool = True
+    """Pull image before running"""
     volumes: list[DockerEnvironmentVolume] = Field(default_factory=list)
     """Volumes to mount"""
