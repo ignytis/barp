@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import ValidatorFunctionWrapHandler, WrapValidator
+from pydantic import Field, ValidatorFunctionWrapHandler, WrapValidator
 
 from barp.models import validate_child_model
 from barp.types.environments.base import BaseEnvironment
@@ -24,3 +24,5 @@ class Profile(BaseStrictModel):
     """Profile name"""
     task_defaults: dict
     """Defaults which will be applied to all tasks running with given profile"""
+    vars: dict = Field(default_factory=dict)
+    """Custom variables which could be used in task definitions"""
