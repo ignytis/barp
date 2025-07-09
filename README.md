@@ -83,3 +83,23 @@ $ export BARP_PROFILE=$PWD/docs/examples/barp.d/profiles/docker.cfg
 $ barp run -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
 Here is an env var from task: "test"; Here is an env var from profile: "abc_docker"
 ```
+
+## Some ideas for implementation
+
+### Event listeners
+
+Catch events like "before task start", "after task end", etc
+
+### Task transformers
+
+If task template is incompatible with some executor, transformers could convert it into compatible one.
+
+### Project management
+
+Combine tasks into projects + compile projects, like Apache Airflow
+
+## Standard library of executors
+
+- Kubernetes job
+- SSH
+- Python file
