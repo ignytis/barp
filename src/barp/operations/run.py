@@ -49,7 +49,7 @@ def run(profile_path: str, template_path: str | None = None, additional_args: li
 def _get_task_template(template_path: str | None, profile: dict, cfg_builder: ConfigBuilder) -> dict:
     """Resolves a task template. If no path is provided, returns an empty template"""
     if not template_path:
-        return {}
+        return {"id": "unnamed"}
 
     template_path_parts = template_path.rsplit(":", 1)
     if len(template_path_parts) != 2:  # noqa: PLR2004 2 is not a magic value
@@ -60,5 +60,6 @@ def _get_task_template(template_path: str | None, profile: dict, cfg_builder: Co
     task_tpl = template_file_rendered.get(template_id)
     if task_tpl is None:
         raise ValueError(ERROR_TEMPLATE_ID_NOT_FOUND.format(id=template_id, path=template_files))
+    task_tpl["id"] = template_id
 
     return task_tpl

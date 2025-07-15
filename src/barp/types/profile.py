@@ -22,7 +22,7 @@ class Profile(BaseStrictModel):
     """Environment configuration"""
     name: str
     """Profile name"""
-    task_defaults: dict
+    task_defaults: dict = Field(default_factory=dict)
     """Defaults which will be applied to all tasks running with given profile"""
     vars: dict = Field(default_factory=dict)
     """Custom variables which could be used in task definitions"""

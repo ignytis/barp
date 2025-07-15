@@ -93,6 +93,7 @@ Catch events like "before task start", "after task end", etc
 ### Task transformers
 
 If task template is incompatible with some executor, transformers could convert it into compatible one.
+Or it could be trasformation from configuration of other incompatible tool.
 
 ### Project management
 

@@ -33,6 +33,7 @@ dev = [ # dependencies for Barp development
 
 ]
 env_docker = ["docker>=7.1.0,<8.0.0"] # support for Docker environment
+env_kubernetes = ["kubernetes>=31.0.0,<34.0.0"] # support for Kubernetes environment
 runtime = [ # execution of tasks
   "configtpl~=1.0.0",
 ]
@@ -42,15 +43,16 @@ barp = "barp.cli.main:cmd_group_main"
 
 [project.entry-points."barp.types.environments"]
 docker = "barp.types.environments.docker:DockerEnvironment"
+kubernetes = "barp.types.environments.kubernetes:KubernetesEnvironment"
 local = "barp.types.environments.local:LocalEnvironment"
 
 [project.entry-points."barp.types.task_templates"]
-command = "barp.types.tasks.command:CommandTaskTemplate"
-docker = "barp.types.tasks.docker:DockerTaskTemplate"
+system_command = "barp.types.tasks.system_command:SystemCommandTaskTemplate"
 
 [project.entry-points."barp.executors"]
-docker_command = "barp.executors.docker.docker_command:DockerCommandExecutor"
-local_command = "barp.executors.local.local_command:LocalCommandExecutor"
+system_command_docker = "barp.executors.system_command.docker_executor:DockerExecutor"
+system_command_kubernetes = "barp.executors.system_command.kubernetes_executor:KubernetesExecutor"
+system_command_local = "barp.executors.system_command.local_executor:LocalExecutor"
 
 
 [project.urls]

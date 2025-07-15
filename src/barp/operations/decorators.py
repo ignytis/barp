@@ -17,7 +17,9 @@ def barp_operation(func: callable) -> callable:
 
 
 def _init_logger() -> None:
-    logging.basicConfig(format="%(asctime)s PID %(process)d [%(levelname)s] %(name)s: %(message)s")
-
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-    logging.getLogger(__name__).setLevel(log_level)
+    logging.basicConfig(
+        format="%(asctime)s PID %(process)d [%(levelname)s] %(name)s: %(message)s",
+        level=log_level,
+    )
+    logging.getLogger("barp").setLevel(log_level)
