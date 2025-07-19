@@ -54,6 +54,9 @@ system_command_docker = "barp.executors.system_command.docker_executor:DockerExe
 system_command_kubernetes = "barp.executors.system_command.kubernetes_executor:KubernetesExecutor"
 system_command_local = "barp.executors.system_command.local_executor:LocalExecutor"
 
+[project.entry-points."barp.task_template_resolvers"]
+file = "barp.task_template_resolvers.file:FileTaskTemplateResolver"
+stdin = "barp.task_template_resolvers.stdin:StdinTaskTemplateResolver"
 
 [project.urls]
 Homepage = "https://github.com/ignytis/barp"
