@@ -15,7 +15,7 @@ __Basic execution via command line arguments:__
 ```bash
 $ barp run \
     -p $PWD/docs/examples/barp.d/profiles/local.cfg \
-    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
+    file://$PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
 
 Hello 1 🚀
 Hello 2 🚀
@@ -25,21 +25,25 @@ Hello 5 🚀
 Example error! 💥
 ```
 
-__Using profile + CLI arguments only:__
-
-If the task template parameter is skipped, the empty template will be used.
-It might be useful for system commands:
+__Execution from standard input__
 
 ```bash
-$ barp run -p $PWD/docs/examples/barp.d/profiles/local.cfg -- printenv | grep BARP
+$ barp run \
+    -p $PWD/docs/examples/barp.d/profiles/local.cfg \
+    - \
+    one two three < $PWD/docs/examples/barp.d/task_templates/stdin.cfg
 
-BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
-BARP_SAMPLE_PROFILE_VAR_C=
-BARP_SAMPLE_PROFILE_VAR_D=profile_env_val_task
+Hello, World! There are more arguments will be printed if any provided:  one two three
 ```
-Since `command` is a default task type in profile `docs/examples/barp.d/profiles/local.cfg`,
-the provided arguments automatically resolve into system command.
-The environment variables also come from profile confiuguration.
+or:
+```bash
+$ barp run \
+    -p $PWD/docs/examples/barp.d/profiles/local.cfg \
+    stdin:// \
+    one two three < $PWD/docs/examples/barp.d/task_templates/stdin.cfg
+
+Hello, World! There are more arguments will be printed if any provided:  one two three
+```
 
 __Composing profile from multiple configuration files:__
 
@@ -48,7 +52,7 @@ _Case 1. Using 'local' profile only:_
 ```bash
 barp run \
     -p $PWD/docs/examples/barp.d/profiles/local.cfg \
-    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+    file://$PWD/docs/examples/barp.d/task_templates/command.cfg?command.print_env_vars
 
 BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
 BARP_SAMPLE_PROFILE_VAR_C=
@@ -61,7 +65,7 @@ _Case 2. Using 'common' profile is added:_
 ```bash
 barp run \
     -p $PWD/docs/examples/barp.d/profiles/common.cfg:$PWD/docs/examples/barp.d/profiles/local.cfg \
-    -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+    file://$PWD/docs/examples/barp.d/task_templates/command.cfg?command.print_env_vars
 
 BARP_SAMPLE_PROFILE_VAR_A=profile_env_val_env
 BARP_SAMPLE_PROFILE_VAR_B=profile_env_val_b
@@ -75,12 +79,12 @@ __Adjusting the environment via env vars:__
 ```bash
 # Local process
 $ export BARP_PROFILE=$PWD/docs/examples/barp.d/profiles/local.cfg
-$ barp run -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+$ barp run file://$PWD/docs/examples/barp.d/task_templates/command.cfg?print_env_vars
 Here is an env var from task: "test"; Here is an env var from profile: "abc"
 
 # Docker. NB: Docker needs to be running
 $ export BARP_PROFILE=$PWD/docs/examples/barp.d/profiles/docker.cfg
-$ barp run -t $PWD/docs/examples/barp.d/task_templates/command.cfg:print_env_vars
+$ barp run file://$PWD/docs/examples/barp.d/task_templates/command.cfg?print_env_vars
 Here is an env var from task: "test"; Here is an env var from profile: "abc_docker"
 ```
 
