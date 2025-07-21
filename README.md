@@ -15,7 +15,7 @@ __Basic execution via command line arguments:__
 ```bash
 $ barp run \
     -p $PWD/docs/examples/barp.d/profiles/local.cfg \
-    file://$PWD/docs/examples/barp.d/task_templates/command.cfg:print_n_times
+    file://$PWD/docs/examples/barp.d/task_templates/command.cfg?command.print_n_times
 
 Hello 1 🚀
 Hello 2 🚀
