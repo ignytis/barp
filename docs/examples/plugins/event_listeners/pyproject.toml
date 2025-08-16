@@ -1,0 +1,13 @@
+[project]
+name = "example_listener"
+version = "0.0.1"
+description = "An example of event listener plugin"
+requires-python = ">=3.13"
+
+dependencies = [
+  "barp",
+]
+
+
+[project.entry-points."barp.event_listeners"]
+pre_exec = "example_listener.task_pre_execute:PreExecuteEventListener"

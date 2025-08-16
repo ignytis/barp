@@ -47,6 +47,7 @@ ignore = [
               # or `lint.extend-select` configuration, or adding it to the `lint.ignore` configuration.
     "D100", # Missing docstring in public module
     "D104", # D104 Missing docstring in public package
+    "D107", # D107 Missing docstring in constructor
     "D203", # warning: `incorrect-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `incorrect-blank-line-before-class`
     "D212", # warning: `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`
     "D400", # First line should end with a period
