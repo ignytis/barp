@@ -1,6 +1,5 @@
 import logging
 import os
-from functools import wraps
 from importlib.metadata import entry_points
 from typing import TYPE_CHECKING
 
@@ -12,18 +11,10 @@ if TYPE_CHECKING:
     from barp.types.events.base import BaseEvent
 
 
-def barp_operation(func: callable) -> callable:
-    """All Barp operators should use this decorator"""
-
-    @wraps(func)
-    def initialized_operation(*args: list, **kwargs: dict) -> any:
-        _init_logger()
-        _register_event_listeners()
-
-        """Initialized Barp and runs the original function"""
-        return func(*args, **kwargs)
-
-    return initialized_operation
+def barp_init() -> None:
+    """Initializes the library. All entry points (CLI components or server initalization routines) should call this"""
+    _init_logger()
+    _register_event_listeners()
 
 
 def _init_logger() -> None:

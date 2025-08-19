@@ -8,7 +8,6 @@ from configtpl.utils.dicts import dict_deep_merge
 from barp.events.event_dispatcher import dispatch_event
 from barp.executors.factory import get_executor
 from barp.models import validate_child_model
-from barp.operations.decorators import barp_operation
 from barp.task_template_resolvers.factory import get_task_template_resovler
 from barp.types.events.pre_execute import PreExecuteEvent
 from barp.types.profile import Profile
@@ -25,7 +24,6 @@ ERROR_EXECUTOR_NOT_FOUND = "Cannot find an executor for task kind `{task_kind}` 
 logger = logging.getLogger(__name__)
 
 
-@barp_operation
 def run(profile_path: str, task_template_url: str, additional_args: list[str] | None = None) -> None:
     """Runs a process"""
     if additional_args is None:
