@@ -14,11 +14,12 @@ _Now installing a plugin with event listener:_
 $ pip install -e ./docs/examples/plugins/event_listeners/example_listener/
 ```
 
-_Running the command again. Instead of original arguments the task prints something different:_
+_Running the command again. Instead of original arguments the task prints something different and logs the execution time:_
 
 ```bash
 $ barp run file://$PWD/docs/examples/barp.d/task_templates/command.cfg?command.print_profile_vars
 Hello from pre-execute listener
+2025-01-01 11:11:28 [INFO] example_listener.task_time_logger: Task duration: 0.0007038116455078125
 ```
 
 _Clean-up_

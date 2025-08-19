@@ -10,5 +10,5 @@ class PreExecuteEventListener(BaseEventListener):
 
     def handle(self, event: PreExecuteEvent) -> None:
         """Handles the pre-execute event"""
-        if isinstance(event.task_template, SystemCommandTaskTemplate):
-            event.task_template.args = ["echo", "Hello from pre-execute listener"]
+        if isinstance(event.ctx.task_template, SystemCommandTaskTemplate):
+            event.ctx.task_template.args = ["echo", "Hello from pre-execute listener"]

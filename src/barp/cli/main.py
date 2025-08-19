@@ -15,9 +15,5 @@ def cmd_group_main() -> None:
     """Main command group"""
 
 
+barp_init()
 cmd_group_main.add_command(cmd_run)
-
-
-if __name__ == "__main__":
-    barp_init()
-    cmd_group_main()

@@ -11,3 +11,5 @@ dependencies = [
 
 [project.entry-points."barp.event_listeners"]
 pre_exec = "example_listener.task_pre_execute:PreExecuteEventListener"
+pre_exec_logger = "example_listener.task_time_logger:PreExecuteEventListener"
+post_exec_logger = "example_listener.task_time_logger:PostExecuteEventListener"

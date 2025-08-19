@@ -9,6 +9,8 @@ from barp.events.event_dispatcher import dispatch_event
 from barp.executors.factory import get_executor
 from barp.models import validate_child_model
 from barp.task_template_resolvers.factory import get_task_template_resovler
+from barp.types.events.execute import TaskExecutionContext
+from barp.types.events.post_execute import PostExecuteEvent
 from barp.types.events.pre_execute import PreExecuteEvent
 from barp.types.profile import Profile
 
@@ -43,10 +45,13 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
     if executor is None:
         raise ValueError(ERROR_EXECUTOR_NOT_FOUND.format(task_kind=task_tpl.kind, env_kind=profile.environment.kind))
 
-    event = PreExecuteEvent(profile=profile, executor=executor, task_template=task_tpl, additional_args=additional_args)
+    ctx = TaskExecutionContext(
+        profile=profile, executor=executor, task_template=task_tpl, additional_args=additional_args
+    )
+    event = PreExecuteEvent(ctx=ctx)
     dispatch_event(event)
-
-    executor.execute(event.task_template, event.additional_args)
+    executor.execute(event.ctx.task_template, event.ctx.additional_args)
+    dispatch_event(PostExecuteEvent(ctx=ctx))
 
 
 def _get_task_template(task_template_url: str, profile: dict, cfg_builder: ConfigBuilder) -> dict:
