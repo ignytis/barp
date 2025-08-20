@@ -83,9 +83,12 @@ $ barp run file://$PWD/docs/examples/barp.d/task_templates/command.cfg?print_env
 Here is an env var from task: "test"; Here is an env var from profile: "abc"
 
 # Docker. NB: Docker needs to be running
+$ pip intall -e $PWD/docs/examples/plugins/barp_example_executors  # install a plugin to support more envs
 $ export BARP_PROFILE=$PWD/docs/examples/barp.d/profiles/docker.cfg
 $ barp run file://$PWD/docs/examples/barp.d/task_templates/command.cfg?print_env_vars
 Here is an env var from task: "test"; Here is an env var from profile: "abc_docker"
+
+$ pip uninstall barp_example_executors # cleanup
 ```
 
 ## Some ideas for implementation
