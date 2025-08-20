@@ -1,0 +1,19 @@
+[project]
+name = "barp_example_executors"
+version = "0.0.1"
+description = "An example of task executor plugins. More executors for system commands"
+requires-python = ">=3.13"
+
+dependencies = [
+  "barp",
+  "docker>=7.1.0,<8.0.0", # support for Docker environment
+  "kubernetes>=31.0.0,<34.0.0" # support for Kubernetes environment
+]
+
+[project.entry-points."barp.types.environments"]
+docker = "barp_example_executors.types.environments.docker:DockerEnvironment"
+kubernetes = "barp_example_executors.types.environments.kubernetes:KubernetesEnvironment"
+
+[project.entry-points."barp.executors"]
+system_command_docker = "barp_example_executors.executors.system_command.docker_executor:DockerExecutor"
+system_command_kubernetes = "barp_example_executors.executors.system_command.kubernetes_executor:KubernetesExecutor"

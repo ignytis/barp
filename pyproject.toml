@@ -19,6 +19,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+# Base dependencies are not sufficient for task execution.
+# Please install the 'runtime' extra to execute tasks and 'cli' extra to run tasks using command line.\
+# The basic installation with no extras could be used to define types in plugins
 dependencies = [
   "pydantic==2.11.*",
 ]
@@ -30,10 +33,8 @@ cli = [ # command-line interface
 dev = [ # dependencies for Barp development
   "ruff==0.12.*",
   "pre_commit==4.2.*",
-
 ]
-env_docker = ["docker>=7.1.0,<8.0.0"] # support for Docker environment
-env_kubernetes = ["kubernetes>=31.0.0,<34.0.0"] # support for Kubernetes environment
+
 runtime = [ # execution of tasks
   "configtpl~=1.0.0",
 ]
@@ -42,16 +43,12 @@ runtime = [ # execution of tasks
 barp = "barp.cli.main:cmd_group_main"
 
 [project.entry-points."barp.types.environments"]
-docker = "barp.types.environments.docker:DockerEnvironment"
-kubernetes = "barp.types.environments.kubernetes:KubernetesEnvironment"
 local = "barp.types.environments.local:LocalEnvironment"
 
 [project.entry-points."barp.types.task_templates"]
 system_command = "barp.types.tasks.system_command:SystemCommandTaskTemplate"
 
 [project.entry-points."barp.executors"]
-system_command_docker = "barp.executors.system_command.docker_executor:DockerExecutor"
-system_command_kubernetes = "barp.executors.system_command.kubernetes_executor:KubernetesExecutor"
 system_command_local = "barp.executors.system_command.local_executor:LocalExecutor"
 
 [project.entry-points."barp.task_template_resolvers"]

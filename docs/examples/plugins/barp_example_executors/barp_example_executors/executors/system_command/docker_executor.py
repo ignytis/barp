@@ -3,9 +3,9 @@ import os
 
 from barp.executors.base import BaseExecutor
 from barp.types.environments.base import BaseEnvironment
-from barp.types.environments.docker import DockerEnvironment
 from barp.types.tasks.base import BaseTaskTemplate
 from barp.types.tasks.system_command import SystemCommandTaskTemplate
+from barp_example_executors.types.environments.docker import DockerEnvironment
 
 try:
     import docker
@@ -38,7 +38,7 @@ class DockerExecutor(BaseExecutor):
         client = docker.from_env(environment={**os.environ, **profile_env.env} if profile_env.env_passthrough else {})
 
         if profile_env.pull_image:
-            self.logger.info("Pulling image %s...", profile_env.image)
+            self.logger.debug("Pulling image %s...", profile_env.image)
             client.images.pull(profile_env.image)
 
         container = client.containers.run(

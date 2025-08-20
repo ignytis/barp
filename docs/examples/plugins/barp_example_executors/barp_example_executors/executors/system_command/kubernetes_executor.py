@@ -14,9 +14,9 @@ from kubernetes import client, config
 
 from barp.executors.base import BaseExecutor
 from barp.types.environments.base import BaseEnvironment
-from barp.types.environments.kubernetes import KubernetesEnvironment
 from barp.types.tasks.base import BaseTaskTemplate
 from barp.types.tasks.system_command import SystemCommandTaskTemplate
+from barp_example_executors.types.environments.kubernetes import KubernetesEnvironment
 
 REGEX_VALID_K8S_CHARS = re.compile("[^a-zA-Z0-9-]")
 

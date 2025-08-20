@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 from configtpl.config_builder import ConfigBuilder
 from configtpl.utils.dicts import dict_deep_merge
+from pydantic import ValidationError
 
 from barp.events.event_dispatcher import dispatch_event
 from barp.executors.factory import get_executor
@@ -17,6 +18,10 @@ from barp.types.profile import Profile
 if TYPE_CHECKING:
     from barp.types.tasks.base import BaseTaskTemplate
 
+ERROR_PROFILE_FORMAT = (
+    "Cannot load the profile. Please ensure that environment `{env_kind}` is supported by your current profile "
+    "and there are no issues with following fields: {fields}"
+)
 ERROR_PROFILE_NO_ENV_PROVIDED = (
     "No environment configuration is provided in profile.Please add the `environment` section to profile"
 )
@@ -32,8 +37,15 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
         additional_args = []
 
     cfg_builder = ConfigBuilder()
-    profile = cfg_builder.build_from_files(profile_path)
-    profile = Profile.model_validate(profile)
+    profile_dict = cfg_builder.build_from_files(profile_path)
+    try:
+        profile = Profile.model_validate(profile_dict)
+    except ValidationError as e:
+        invalid_fields = [".".join(err["loc"]) for err in e.errors()]
+        logger.debug("Profile: %s", profile_dict)
+        raise RuntimeError(
+            ERROR_PROFILE_FORMAT.format(env_kind=profile_dict.get("environment").get("kind"), fields=invalid_fields)
+        ) from e
     task_tpl = _get_task_template(task_template_url, profile, cfg_builder)
 
     if profile.task_defaults is not None:
