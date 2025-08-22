@@ -14,4 +14,4 @@ class TaskExecutionContext:
         self.executor = executor
         self.task_template = task_template
         self.additional_args = additional_args
-        self.params = {}
+        self.params: dict = {}

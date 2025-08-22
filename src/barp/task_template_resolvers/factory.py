@@ -1,4 +1,5 @@
 from importlib.metadata import entry_points
+from typing import cast
 from urllib.parse import ParseResult
 
 from configtpl.config_builder import ConfigBuilder
@@ -12,9 +13,10 @@ def get_task_template_resovler(
     cfg_builder: ConfigBuilder, profile: Profile, url: ParseResult
 ) -> BaseTaskTemplateResolver | None:
     """Locate a task template resolver by task URL"""
-    resolver_classes: list[type[BaseTaskTemplateResolver]] = [
-        reflection_load_class_from_string(ep.value) for ep in entry_points(group="barp.task_template_resolvers")
-    ]
+    resolver_classes = cast(
+        "list[type[BaseTaskTemplateResolver]]",
+        [reflection_load_class_from_string(ep.value) for ep in entry_points(group="barp.task_template_resolvers")],
+    )
     resolver_classes = [x for x in resolver_classes if x.supports(url)]
     if not resolver_classes:
         return None

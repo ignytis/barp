@@ -7,7 +7,7 @@ from barp.types.environments.base import BaseEnvironment
 from barp.types.models import BaseStrictModel
 
 
-def _convert_env(v: object, h: ValidatorFunctionWrapHandler) -> BaseEnvironment:
+def _convert_env(v: dict, h: ValidatorFunctionWrapHandler) -> BaseEnvironment:
     return h(validate_child_model(v, "barp.types.environments", "kind"))
 
 

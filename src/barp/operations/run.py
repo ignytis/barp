@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
 from configtpl.config_builder import ConfigBuilder
@@ -18,6 +18,7 @@ from barp.types.profile import Profile
 if TYPE_CHECKING:
     from barp.types.tasks.base import BaseTaskTemplate
 
+ERROR_PROFILE_PATH_NOT_PROVIDED = "Profile path is not provided"
 ERROR_PROFILE_FORMAT = (
     "Cannot load the profile. Please ensure that environment `{env_kind}` is supported by your current profile "
     "and there are no issues with following fields: {fields}"
@@ -37,6 +38,8 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
         additional_args = []
 
     cfg_builder = ConfigBuilder()
+    if not profile_path:
+        raise ValueError(ERROR_PROFILE_PATH_NOT_PROVIDED)
     profile_dict = cfg_builder.build_from_files(profile_path)
     try:
         profile = Profile.model_validate(profile_dict)
@@ -46,12 +49,11 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
         raise RuntimeError(
             ERROR_PROFILE_FORMAT.format(env_kind=profile_dict.get("environment").get("kind"), fields=invalid_fields)
         ) from e
-    task_tpl = _get_task_template(task_template_url, profile, cfg_builder)
 
+    task_tpl_dict = _get_task_template(task_template_url, profile, cfg_builder)
     if profile.task_defaults is not None:
-        task_tpl = dict_deep_merge(profile.task_defaults, task_tpl)
-
-    task_tpl: BaseTaskTemplate = validate_child_model(task_tpl, "barp.types.task_templates", "kind")
+        task_tpl_dict = dict_deep_merge(profile.task_defaults, task_tpl_dict)
+    task_tpl = cast("BaseTaskTemplate", validate_child_model(task_tpl_dict, "barp.types.task_templates", "kind"))
 
     executor = get_executor(profile, task_tpl)
     if executor is None:
@@ -66,8 +68,9 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
     dispatch_event(PostExecuteEvent(ctx=ctx))
 
 
-def _get_task_template(task_template_url: str, profile: dict, cfg_builder: ConfigBuilder) -> dict:
-    """Resolves a task template. If no path is provided, returns an empty template"""
+def _get_task_template(task_template_url: str, profile: Profile, cfg_builder: ConfigBuilder) -> dict:
+    """Resolves a task template"""
+    # If no path is provided, returns an empty template
     if not task_template_url:
         return {"id": "unnamed"}
 

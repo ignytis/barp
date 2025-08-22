@@ -1,7 +1,6 @@
 from urllib.parse import ParseResult
 
 from barp.task_template_resolvers.base import BaseTaskTemplateResolver
-from barp.types.tasks.base import BaseTaskTemplate
 
 ERROR_TEMPLATE_ID_NOT_FOUND = "Task template with `{id}` not found in file `{path}`"
 
@@ -14,7 +13,7 @@ class FileTaskTemplateResolver(BaseTaskTemplateResolver):
         """Returns True if URL scheme is file://"""
         return url.scheme == "file"
 
-    def resolve(self, url: ParseResult) -> BaseTaskTemplate:
+    def resolve(self, url: ParseResult) -> dict:
         """Resolves the provided local file URL"""
         path = url.path
         template_id = url.query

@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import threading
+from typing import cast
 
 from barp.executors.base import BaseExecutor
 from barp.types.environments.base import BaseEnvironment
@@ -18,8 +19,9 @@ class LocalExecutor(BaseExecutor):
         """Returns True if a system command executes in local environment"""
         return type(environment) is LocalEnvironment and type(task_template) is SystemCommandTaskTemplate
 
-    def execute(self, task_template: SystemCommandTaskTemplate, additional_args: list[str]) -> None:
+    def execute(self, task_template: BaseTaskTemplate, additional_args: list[str]) -> None:
         """Executes the task from template"""
+        task_template = cast("SystemCommandTaskTemplate", task_template)
         profile_env: LocalEnvironment = self.profile.environment
         process = subprocess.Popen(
             args=task_template.args + additional_args,

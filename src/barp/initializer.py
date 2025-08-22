@@ -1,7 +1,7 @@
 import logging
 import os
 from importlib.metadata import entry_points
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from barp.events.event_dispatcher import register_event_listener
 from barp.reflection import reflection_load_class_from_string
@@ -27,12 +27,13 @@ def _init_logger() -> None:
 
 
 def _register_event_listeners() -> None:
-    event_listener_classes: list[type[BaseEventListener]] = [
-        reflection_load_class_from_string(ep.value) for ep in entry_points(group="barp.event_listeners")
-    ]
+    event_listener_classes = cast(
+        "list[type[BaseEventListener]]",
+        [reflection_load_class_from_string(ep.value) for ep in entry_points(group="barp.event_listeners")],
+    )
 
     # Create an instance of event listener per event listener class and sort listeners by priority for each event type
-    event_classes: list[type[BaseEvent]] = {listener_cls.event_cls for listener_cls in event_listener_classes}
+    event_classes = cast("list[type[BaseEvent]]", {listener_cls.event_cls for listener_cls in event_listener_classes})
     event_listeners_map: dict[type[BaseEvent], list[BaseEventListener]] = {
         event_class: [] for event_class in event_classes
     }

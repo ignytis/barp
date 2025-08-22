@@ -2,7 +2,6 @@ import sys
 from urllib.parse import ParseResult
 
 from barp.task_template_resolvers.base import BaseTaskTemplateResolver
-from barp.types.tasks.base import BaseTaskTemplate
 
 
 class StdinTaskTemplateResolver(BaseTaskTemplateResolver):
@@ -20,7 +19,7 @@ class StdinTaskTemplateResolver(BaseTaskTemplateResolver):
             and url.fragment == ""
         )
 
-    def resolve(self, _url: ParseResult) -> BaseTaskTemplate:
+    def resolve(self, _url: ParseResult) -> dict:
         """Resolves the provided local file URL"""
         content = "".join(sys.stdin)
         tpl = self.cfg_builder.build_from_str(content, ctx={"profile": self.profile})

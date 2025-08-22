@@ -4,7 +4,6 @@ from urllib.parse import ParseResult
 from configtpl.config_builder import ConfigBuilder
 
 from barp.types.profile import Profile
-from barp.types.tasks.base import BaseTaskTemplate
 
 
 class BaseTaskTemplateResolver(abc.ABC):
@@ -25,7 +24,7 @@ class BaseTaskTemplateResolver(abc.ABC):
         """
         raise NotImplementedError
 
-    def resolve(self, url: ParseResult) -> BaseTaskTemplate:
+    def resolve(self, url: ParseResult) -> dict:
         """Resolves the provided URL"""
         raise NotImplementedError
 
