@@ -1,7 +1,7 @@
 import abc
 from urllib.parse import ParseResult
 
-from configtpl.config_builder import ConfigBuilder
+from configtpl.main import ConfigTpl
 
 from barp.types.profile import Profile
 
@@ -9,7 +9,7 @@ from barp.types.profile import Profile
 class BaseTaskTemplateResolver(abc.ABC):
     """A base class for task template resolvers"""
 
-    def __init__(self, cfg_builder: ConfigBuilder, profile: Profile) -> None:
+    def __init__(self, cfg_builder: ConfigTpl, profile: Profile) -> None:
         """Creates ann instance of Task Template Resolver"""
         self.cfg_builder = cfg_builder
         self.profile = profile

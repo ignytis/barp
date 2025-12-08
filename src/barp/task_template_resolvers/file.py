@@ -17,7 +17,7 @@ class FileTaskTemplateResolver(BaseTaskTemplateResolver):
         """Resolves the provided local file URL"""
         path = url.path
         template_id = url.query
-        template_file_rendered = self.cfg_builder.build_from_files(path, ctx={"profile": self.profile})
+        template_file_rendered = self.cfg_builder.build_from_files(paths=[path], ctx={"profile": self.profile})
         task_tpl = template_file_rendered.get(template_id)
         if task_tpl is None:
             raise ValueError(ERROR_TEMPLATE_ID_NOT_FOUND.format(id=template_id, path=path))

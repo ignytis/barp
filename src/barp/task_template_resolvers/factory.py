@@ -2,7 +2,7 @@ from importlib.metadata import entry_points
 from typing import cast
 from urllib.parse import ParseResult
 
-from configtpl.config_builder import ConfigBuilder
+from configtpl.main import ConfigTpl
 
 from barp.reflection import reflection_load_class_from_string
 from barp.task_template_resolvers.base import BaseTaskTemplateResolver
@@ -10,7 +10,7 @@ from barp.types.profile import Profile
 
 
 def get_task_template_resovler(
-    cfg_builder: ConfigBuilder, profile: Profile, url: ParseResult
+    cfg_builder: ConfigTpl, profile: Profile, url: ParseResult
 ) -> BaseTaskTemplateResolver | None:
     """Locate a task template resolver by task URL"""
     resolver_classes = cast(

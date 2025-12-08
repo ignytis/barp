@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
-from configtpl.config_builder import ConfigBuilder
+from configtpl.main import ConfigTpl
 from configtpl.utils.dicts import dict_deep_merge
 from pydantic import ValidationError
 
@@ -37,10 +37,10 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
     if additional_args is None:
         additional_args = []
 
-    cfg_builder = ConfigBuilder()
+    cfg_builder = ConfigTpl()
     if not profile_path:
         raise ValueError(ERROR_PROFILE_PATH_NOT_PROVIDED)
-    profile_dict = cfg_builder.build_from_files(profile_path)
+    profile_dict = cfg_builder.build_from_files(paths=[profile_path])
     try:
         profile = Profile.model_validate(profile_dict)
     except ValidationError as e:
@@ -68,7 +68,7 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
     dispatch_event(PostExecuteEvent(ctx=ctx))
 
 
-def _get_task_template(task_template_url: str, profile: Profile, cfg_builder: ConfigBuilder) -> dict:
+def _get_task_template(task_template_url: str, profile: Profile, cfg_builder: ConfigTpl) -> dict:
     """Resolves a task template"""
     # If no path is provided, returns an empty template
     if not task_template_url:

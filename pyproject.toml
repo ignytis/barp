@@ -30,13 +30,17 @@ dependencies = [
 cli = [ # command-line interface
   "click>=8.1.8,<9.0.0",
 ]
+
 dev = [ # dependencies for Barp development
-  "ruff==0.12.*",
-  "pre_commit==4.2.*",
+  "hatch>=1.16.0,<1.17.0",
+  # NB: keep it the same as in pre-commit-config.yaml
+  "ruff==0.14.3",
+  "pytest",
+  "pre_commit",
 ]
 
 runtime = [ # execution of tasks
-  "configtpl~=1.0.0",
+  "configtpl~=2.0.1",
 ]
 
 [project.scripts]
