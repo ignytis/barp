@@ -40,7 +40,7 @@ dev = [ # dependencies for Barp development
 ]
 
 runtime = [ # execution of tasks
-  "configtpl~=2.0.1",
+  "configtpl~=3.0.0",
 ]
 
 [project.scripts]

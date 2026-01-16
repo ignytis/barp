@@ -32,7 +32,12 @@ ERROR_EXECUTOR_NOT_FOUND = "Cannot find an executor for task kind `{task_kind}` 
 logger = logging.getLogger(__name__)
 
 
-def run(profile_path: str, task_template_url: str, additional_args: list[str] | None = None) -> None:
+def run(
+    profile_path: str,
+    task_template_url: str,
+    additional_args: list[str] | None = None,
+    cfg_file_format: str | None = None,
+) -> None:
     """Runs a process"""
     if additional_args is None:
         additional_args = []
@@ -40,7 +45,7 @@ def run(profile_path: str, task_template_url: str, additional_args: list[str] | 
     cfg_builder = ConfigTpl()
     if not profile_path:
         raise ValueError(ERROR_PROFILE_PATH_NOT_PROVIDED)
-    profile_dict = cfg_builder.build_from_files(paths=[profile_path])
+    profile_dict = cfg_builder.build_from_files(paths=[profile_path], file_type=cfg_file_format)
     try:
         profile = Profile.model_validate(profile_dict)
     except ValidationError as e:
